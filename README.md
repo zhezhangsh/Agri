@@ -16,9 +16,9 @@ library(Agri);
 These regions could be any type of annotated genomic regions with or without quantitative features, such as: 
 
   - Gene body
-      - exons/introns
-      - UTRs
-      - splicing sites
+      - Exons/introns
+      - Coding regions/UTRs
+      - Splicing sites
       - TSS/TTS
       - miRNA binding sites
   - Regulatory regions
