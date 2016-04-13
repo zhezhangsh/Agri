@@ -26,7 +26,7 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   # Fix potential overlapping of CNV regions
   cnv<-cnv[order(as.vector(seqnames(cnv)), start(cnv))]; 
   if (length(cnv)>1) {
-    ind<-(2:length(cnv))[which(seqnames(cnv)[-1] == seqnames(cnv)[-length(cnv)])]; 
+    ind<-(2:length(cnv))[which(as.vector(seqnames(cnv)[-1]) == as.vector(seqnames(cnv)[-length(cnv)]))]; 
     start(cnv)[ind]<-pmax(start(cnv)[ind], end(cnv)[ind-1]+1); 
   } 
   
