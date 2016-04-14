@@ -48,7 +48,10 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   seqlevels(exon.olap)<-unique(as.vector(seqnames(exon.olap)));
   
   c<-data.frame(chr=as.vector(seqnames(exon.olap)), start=start(exon.olap), end=end(exon.olap), stringsAsFactors = FALSE); 
-  exon.copy[names(exon.olap)]<-apply(c, 1, function(c) mean(cov[[c[1]]][c[2]:c[3]])); 
+  exon.copy[names(exon.olap)]
+  exon.cov<-apply(c, 1, function(c) cov[[c[1]]][c[2]:c[3]]); 
+  names(exon.cov)<-names(exon.olap); 
+  exon.copy[names(exon.olap)]<-sapply(exon.cov, mean); 
   exon$copy<-exon.copy;
 
   ########################################################################
