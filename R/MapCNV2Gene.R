@@ -10,8 +10,9 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   require('GenomicRanges'); 
   require('CHOPseq'); 
   
-  if (length(copy)!=length(cnv)) copy<-elementMetadata(cnv)[, copy]; 
+  if (length(copy)!=length(cnv)) copy<-elementMetadata(cnv)[, copy[1]]; 
   copy[copy<0]<-0; 
+  cnv$copy<-copy;
   
   if (length(parent) != length(exon)) parent<-elementMetadata(exon)[, parent[1]];
   if (length(gene) != length(exon)) gene<-elementMetadata(exon)[, gene[1]];
@@ -20,7 +21,6 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   exon$gene<-gene;
   if (is.null(names(exon))) names(exon)<-1:length(exon); 
   
-  copy<-copy[as.vector(seqnames(cnv)) %in% as.vector(seqnames(exon))]; 
   cnv<-cnv[as.vector(seqnames(cnv)) %in% as.vector(seqnames(exon))]; 
   seqlengths(cnv)<-seqlengths(exon)[names(seqlengths(cnv))];
   
@@ -30,6 +30,8 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
     ind<-(2:length(cnv))[which(as.vector(seqnames(cnv)[-1]) == as.vector(seqnames(cnv)[-length(cnv)]))]; 
     start(cnv)[ind]<-pmax(start(cnv)[ind], end(cnv)[ind-1]+1); 
   } 
+  
+  copy<-cnv$copy; 
   
   # Copy number of the whole genome
   cov<-coverage(cnv, weight=copy+1); 
@@ -49,7 +51,6 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   seqlevels(exon.olap)<-unique(as.vector(seqnames(exon.olap)));
   
   c<-data.frame(chr=as.vector(seqnames(exon.olap)), start=start(exon.olap), end=end(exon.olap), stringsAsFactors = FALSE); 
-  exon.copy[names(exon.olap)]
   exon.cov<-apply(c, 1, function(c) cov[[c[1]]][c[2]:c[3]]); 
   names(exon.cov)<-names(exon.olap); 
   exon.copy[names(exon.olap)]<-sapply(exon.cov, mean); 
