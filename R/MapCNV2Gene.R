@@ -20,6 +20,7 @@ MapCNV2Gene<-function(cnv, exon, copy='copy', parent='parent', gene='gene') {
   exon$gene<-gene;
   if (is.null(names(exon))) names(exon)<-1:length(exon); 
   
+  copy<-copy[as.vector(seqnames(cnv)) %in% as.vector(seqnames(exon))]; 
   cnv<-cnv[as.vector(seqnames(cnv)) %in% as.vector(seqnames(exon))]; 
   seqlengths(cnv)<-seqlengths(exon)[names(seqlengths(cnv))];
   
