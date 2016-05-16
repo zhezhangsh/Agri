@@ -25,7 +25,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   if (length(cnv) == 0) warning('None of the CNVs was overlapped to any genomic features; make sure their chromosome names match.\n'); 
   seqlevels(cnv) <- seqlevels(fea); 
   len <- sapply(split(end(cnv), as.vector(seqnames(cnv))), max)[seqlevels(cnv)];
-  seqlengths(cnv) <- pmax(seqlengths(cnv)[seqlevels(cnv)], seqlengths(fea)[seqlevels(cnv)], len, na.rm=TRUE)
+  seqlengths(fea)[seqlevels(cnv)] <- seqlengths(cnv) <- pmax(seqlengths(cnv)[seqlevels(cnv)], seqlengths(fea)[seqlevels(cnv)], len, na.rm=TRUE)
 
   # Fix potential overlapping of CNV regions
   cnv<-cnv[order(as.vector(seqnames(cnv)), start(cnv))]; 
