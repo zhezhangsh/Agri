@@ -11,6 +11,9 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   require('GenomicRanges'); 
   require('CHOPseq'); 
   
+  if (is.null(names(cnv))) names(cnv) <- 1:length(cnv);
+  if (is.null(names(fea))) names(fea) <- 1:length(fea); 
+  
   copy <- copy[1]; 
   if (!(copy %in% names(elementMetadata(cnv)))) stop('Error: metadata column, ', copy, ' is not available.\n'); 
   cnv <- cnv[!is.na(as.numeric(elementMetadata(cnv)[, copy]))]; 
@@ -63,7 +66,12 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   names(fea.cov)<-names(fea.olap); 
   fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
   fea$copy<-fea.copy;
-  out<-fea; 
+  
+  olap <- as.matrix(findOverlaps(fea, cnv));
+  nm1 <- names(fea)[olap[, 1]]; 
+  nm2 <- names(cnv)[olap[, 2]];
+
+  out<-list(cnv=cnv, map2cnv=split(nm2, nm1), feature=fea); 
 
   ########################################################################
   
@@ -80,7 +88,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
     ########################################################################
     # summarize parent level 1
-    cat('Summarizing the first parent level: ', parents[1], '\n'); 
+    cat('Summarizing the first parent level:', parents[1], '\n'); 
     id0 <- as.vector(elementMetadata(fea)[, parents[1]]); 
     id1 <- unique(id0[fea$copy!=2]); 
     fea1 <- fea[as.vector(elementMetadata(fea)[, parents[1]]) %in% id1]; 
@@ -92,25 +100,37 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
     cpy <- rep(2, length(id));
     names(cpy) <- id; 
     cpy[id1] <- cpy1;
-
-    out <- list(feature = out);
-    out[[parents[1]]]<-list(copy=cpy, length=sapply(split(width(fea), id0), sum), mapping=split(names(fea), id0)[names(cpy)]); 
+    
+    map2cnv <- out$map2cnv; 
+    names(map2cnv) <- elementMetadata(fea[names(out$map2cnv)])[, parents[1]]; 
+    x <- unlist(map2cnv, use.names=FALSE);
+    y <- rep(names(map2cnv), sapply(map2cnv, length)); 
+    map2cnv <- lapply(split(x, y), unique); 
+    
+    out[[parents[1]]]<-list(copy=cpy, length=sapply(split(width(fea), id0), sum), mapping=split(names(fea), id0)[names(cpy)], map2cnv=map2cnv); 
 
     if (length(parents) > 1) {
       ########################################################################
       # summarize parent level 2
-      cat('Summarizing the seconde parent level: ', parents[2], '\n');  
+      cat('Summarizing the seconde parent level:', parents[2], '\n');  
       mp <- split(id0, as.vector(elementMetadata(fea)[, parents[2]])); 
       mp <- lapply(mp, unique); 
       p1 <- unlist(mp, use.names=FALSE);
       p2 <- rep(names(mp), sapply(mp, length)); 
-      l <- out[[2]]$length[p1];
-      c <- out[[2]]$copy[p1]; 
+      l <- out[[length(out)]]$length[p1];
+      c <- out[[length(out)]]$copy[p1]; 
       lc <- cbind(split(as.vector(l), as.vector(p2)), split(as.vector(c), as.vector(p2))); 
       cp <- apply(lc, 1, function(x) weighted.mean(x[[2]], w=x[[1]]));
-      out[[parents[2]]] <- list(copy=cp, mapping=mp); 
+      
+      names(p2) <- p1; 
+      names(map2cnv) <- p2[names(map2cnv)]; 
+      map2cnv <- lapply(split(unlist(map2cnv, use.names=FALSE), rep(names(map2cnv), sapply(map2cnv, length))), unique); 
+        
+      out[[parents[2]]] <- list(copy=cp, mapping=mp, map2cnv=map2cnv); 
     }
   }
   
   out; 
 }
+
+
