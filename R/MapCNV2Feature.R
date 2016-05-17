@@ -29,7 +29,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   seqlevels(cnv) <- seqlevels(fea); 
   len <- sapply(split(end(cnv), as.vector(seqnames(cnv))), max)[seqlevels(cnv)];
   seqlengths(fea)[seqlevels(cnv)] <- seqlengths(cnv) <- pmax(seqlengths(cnv)[seqlevels(cnv)], seqlengths(fea)[seqlevels(cnv)], len, na.rm=TRUE)
-
+  
   # Fix potential overlapping of CNV regions
   cnv<-cnv[order(as.vector(seqnames(cnv)), start(cnv))]; 
   if (length(cnv)>1) {
@@ -44,11 +44,6 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
   copy <- as.numeric(elementMetadata(cnv)[, copy]); 
   
-  # Copy number of the whole genome
-  cov <- coverage(cnv, weight=copy+1); 
-  cov[cov==0] <- 3;
-  cov <- cov-1;
-  
   cat('Mapping', length(cnv), 'CNVs to', length(fea), 'feas\n'); 
   
   ########################################################################
@@ -61,19 +56,34 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   fea.olap<-fea[ct>0]; # feature overlapped to CNVs
   seqlevels(fea.olap)<-unique(as.vector(seqnames(fea.olap)));
   
-  c<-data.frame(chr=as.vector(seqnames(fea.olap)), start=start(fea.olap), end=end(fea.olap), stringsAsFactors = FALSE); 
-  fea.cov <- cov[fea.olap]; 
-  #fea.cov<-lapply(1:nrow(c), function(i) cov[[c[i, 1]]][c[i, 2]:c[i, 3]]); 
-  names(fea.cov)<-names(fea.olap); 
-  fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
+  ol <- findOverlaps(fea.olap, cnv, type='within'); 
+  ol.cp <- cnv$copy[ol@subjectHits]; 
+  names(ol.cp) <- names(fea.olap)[ol@queryHits]; 
+  ol.cp <- ol.cp[!duplicated(names(ol.cp))]; 
+  if (length(ol.cp) > 0) {
+    fea.copy[names(ol.cp)] <- ol.cp;
+    fea.olap <- fea.olap[!(names(fea.olap) %in% names(ol.cp))]; 
+  }
+  
+  if (length(fea.olap) > 0) {
+    # Copy number of the whole genome
+    cov <- coverage(cnv, weight=copy+1); 
+    cov[cov==0] <- 3;
+    cov <- cov-1;
+    
+    c<-data.frame(chr=as.vector(seqnames(fea.olap)), start=start(fea.olap), end=end(fea.olap), stringsAsFactors = FALSE); 
+    fea.cov<-lapply(1:nrow(c), function(i) cov[[c[i, 1]]][c[i, 2]:c[i, 3]]); 
+    names(fea.cov)<-names(fea.olap); 
+    fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
+  }
   fea$copy<-fea.copy;
   
   olap <- findOverlaps(fea.olap, cnv);
   nm1 <- names(fea.olap)[olap@queryHits]; 
   nm2 <- names(cnv)[olap@subjectHits];
-
+  
   out<-list(cnv=cnv, map2cnv=split(nm2, nm1), feature=fea); 
-
+  
   ########################################################################
   
   parents <- c(parent1[1], parent2[1]); 
@@ -86,20 +96,29 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
   ########################################################################
   if (length(parents) > 0) {
-  
+    
     ########################################################################
     # summarize parent level 1
     cat('Summarizing the first parent level:', parents[1], '\n'); 
+    
     id0 <- as.vector(elementMetadata(fea)[, parents[1]]); 
-    id1 <- unique(id0[fea$copy!=2]); 
-    fea1 <- fea[as.vector(elementMetadata(fea)[, parents[1]]) %in% id1]; 
-    cpy1 <- sapply(id1, function(i) {
-      x <- fea1[as.vector(elementMetadata(fea1)[, parents[1]]) %in% i]; 
-      weighted.mean(x$copy, w = width(x)); 
-    }); 
     id <- unique(id0); 
     cpy <- rep(2, length(id));
     names(cpy) <- id; 
+    
+    id1 <- unique(id0[fea$copy!=2]); 
+    fea1 <- fea[as.vector(elementMetadata(fea)[, parents[1]]) %in% id1]; 
+    w <- width(fea1); 
+    c <- fea1$copy; 
+    i <- as.vector(elementMetadata(fea1)[, parents[1]]); 
+    t <- cbind(split(w, i), split(c, i)); 
+    cpy1 <- rep(0, nrow(t));
+    names(cpy1) <- id1; 
+    mn <- sapply(t[, 2], min); 
+    mx <- sapply(t[, 2], max);
+    cpy1[mn==mx] <- mn[mn==mx]; 
+    if (length(which(mn!=mx))>0) cpy1[mn!=mx] <- apply(t[mn!=mx, , drop=FALSE], 1, function(x) weighted.mean(x[[2]], w=x[[1]])); 
+    
     cpy[id1] <- cpy1;
     
     map2cnv <- out$map2cnv; 
@@ -109,7 +128,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
     map2cnv <- lapply(split(x, y), unique); 
     
     out[[parents[1]]]<-list(copy=cpy, length=sapply(split(width(fea), id0), sum), mapping=split(names(fea), id0)[names(cpy)], map2cnv=map2cnv); 
-
+    
     if (length(parents) > 1) {
       ########################################################################
       # summarize parent level 2
@@ -126,7 +145,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
       names(p2) <- p1; 
       names(map2cnv) <- p2[names(map2cnv)]; 
       map2cnv <- lapply(split(unlist(map2cnv, use.names=FALSE), rep(names(map2cnv), sapply(map2cnv, length))), unique); 
-        
+      
       out[[parents[2]]] <- list(copy=cp, mapping=mp, map2cnv=map2cnv); 
     }
   }
