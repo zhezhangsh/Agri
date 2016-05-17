@@ -67,11 +67,9 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
   fea$copy<-fea.copy;
   
-    saveRDS(list(fea.olap, cnv), 'x.rds'); 
-
-  olap <- as.matrix(GenomicRanges::findOverlaps(fea.olap, cnv)); 
-  nm1 <- names(fea.olap)[olap[, 1]]; 
-  nm2 <- names(cnv)[olap[, 2]];
+  olap <- findOverlaps(fea.olap, cnv);
+  nm1 <- names(fea.olap)[olap@queryHits]; 
+  nm2 <- names(cnv)[olap@subjectHits];
 
   out<-list(cnv=cnv, map2cnv=split(nm2, nm1), feature=fea); 
 
