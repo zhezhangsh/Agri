@@ -62,7 +62,8 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   seqlevels(fea.olap)<-unique(as.vector(seqnames(fea.olap)));
   
   c<-data.frame(chr=as.vector(seqnames(fea.olap)), start=start(fea.olap), end=end(fea.olap), stringsAsFactors = FALSE); 
-  fea.cov<-lapply(1:nrow(c), function(i) cov[[c[i, 1]]][c[i, 2]:c[i, 3]]); 
+  fea.cov <- cov[fea.olap]; 
+  #fea.cov<-lapply(1:nrow(c), function(i) cov[[c[i, 1]]][c[i, 2]:c[i, 3]]); 
   names(fea.cov)<-names(fea.olap); 
   fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
   fea$copy<-fea.copy;
