@@ -8,7 +8,6 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   # parent1     The parent level of the basic feature units, such as transcript vs. feas
   # parent2     The parent level of <parent1>, such as gene vs. transcripts
   
-  require('IRanges');
   require('GenomicRanges'); 
   require('CHOPseq'); 
   
@@ -68,7 +67,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
   fea$copy<-fea.copy;
   
-  olap <- as.matrix(IRanges::findOverlaps(fea.olap, cnv)); 
+  olap <- as.matrix(GenomicRanges::findOverlaps(fea.olap, cnv)); 
   nm1 <- names(fea.olap)[olap[, 1]]; 
   nm2 <- names(cnv)[olap[, 2]];
 
