@@ -67,8 +67,9 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
   fea$copy<-fea.copy;
   
-  olap <- as.matrix(findOverlaps(fea, cnv));
-  nm1 <- names(fea)[olap[, 1]]; 
+  print(1); 
+  olap <- as.matrix(findOverlaps(fea.olap, cnv)); print(2); 
+  nm1 <- names(fea.olap)[olap[, 1]]; 
   nm2 <- names(cnv)[olap[, 2]];
 
   out<-list(cnv=cnv, map2cnv=split(nm2, nm1), feature=fea); 
