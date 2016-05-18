@@ -44,7 +44,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
   copy <- as.numeric(elementMetadata(cnv)[, copy]); 
   
-  cat('Mapping', length(cnv), 'CNVs to', length(fea), 'feas\n'); 
+  cat('Mapping', length(cnv), 'CNVs to', length(fea), 'features\n'); 
   
   ########################################################################
   # Average copy number of each genomic region
