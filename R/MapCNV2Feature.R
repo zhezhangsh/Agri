@@ -114,13 +114,10 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
     c <- fea1$copy; 
     i <- as.vector(elementMetadata(fea1)[, parents[1]]); 
     t <- cbind(split(w, i), split(c, i)); 
-    cpy1 <- rep(0, nrow(t));
-    names(cpy1) <- id1; 
     mn <- sapply(t[, 2], min); 
     mx <- sapply(t[, 2], max);
-    cpy1[mn==mx] <- mn[mn==mx]; 
+    cpy1 <- mn; 
     if (length(which(mn!=mx))>0) cpy1[mn!=mx] <- apply(t[mn!=mx, , drop=FALSE], 1, function(x) weighted.mean(x[[2]], w=x[[1]])); 
-    
     cpy[id1] <- cpy1;
     
     map2cnv <- out$map2cnv; 
@@ -154,3 +151,4 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
   out; 
 }
+
