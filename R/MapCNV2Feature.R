@@ -118,7 +118,7 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
     mx <- sapply(t[, 2], max);
     cpy1 <- mn; 
     if (length(which(mn!=mx))>0) cpy1[mn!=mx] <- apply(t[mn!=mx, , drop=FALSE], 1, function(x) weighted.mean(x[[2]], w=x[[1]])); 
-    cpy[id1] <- cpy1;
+    cpy[names(cpy1)] <- cpy1;
     
     map2cnv <- out$map2cnv; 
     names(map2cnv) <- elementMetadata(fea[names(out$map2cnv)])[, parents[1]]; 
