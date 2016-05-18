@@ -57,6 +57,8 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   seqlevels(fea.olap)<-unique(as.vector(seqnames(fea.olap)));
   
   ol <- findOverlaps(fea.olap, cnv, type='within'); 
+  nm1 <- names(fea.olap)[ol@queryHits]; 
+  nm2 <- names(cnv)[ol@subjectHits];
   ol.cp <- cnv$copy[ol@subjectHits]; 
   names(ol.cp) <- names(fea.olap)[ol@queryHits]; 
   ol.cp <- ol.cp[!duplicated(names(ol.cp))]; 
@@ -75,13 +77,13 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
     fea.cov<-lapply(1:nrow(c), function(i) cov[[c[i, 1]]][c[i, 2]:c[i, 3]]); 
     names(fea.cov)<-names(fea.olap); 
     fea.copy[names(fea.olap)]<-sapply(fea.cov, mean); 
+    
+    ol <- findOverlaps(fea.olap, cnv); 
+    nm1 <- c(nm1, names(fea.olap)[ol@queryHits]); 
+    nm2 <- c(nm2, names(cnv)[ol@subjectHits]);
   }
+  
   fea$copy<-fea.copy;
-  
-  olap <- findOverlaps(fea.olap, cnv);
-  nm1 <- names(fea.olap)[olap@queryHits]; 
-  nm2 <- names(cnv)[olap@subjectHits];
-  
   out<-list(cnv=cnv, map2cnv=split(nm2, nm1), feature=fea); 
   
   ########################################################################
@@ -152,5 +154,3 @@ MapCNV2Feature<-function(cnv, fea, copy='copy', parent1=NA, parent2=NA) {
   
   out; 
 }
-
-
