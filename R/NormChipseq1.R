@@ -47,6 +47,12 @@ NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.s
   # Normalize data across samples
   adj <- NormLoess(mns); 
   
+  # Reverse log-transformation
+  if (log.transform) {
+    adj <- exp(adj*log(2));
+    adj[mns==0] <- 0;
+  }
+  
   colnames(adj) <- names(cov); 
   
   adj;
