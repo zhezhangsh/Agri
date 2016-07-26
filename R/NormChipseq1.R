@@ -14,8 +14,9 @@ NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.s
                          trim.low=0.05, trim.high=0.95, exclude=c()) {
   require(DEGandMore);
   
-  nm <- names(cov); 
-  
+  nm  <- names(cov); 
+  ori <- sapply(cov, function(c) rowMeans(c[, col.start:col.end, drop=FALSE], na.rm=TRUE)); 
+    
   # Transform data to log-scale
   if (log.transform) cov <- lapply(cov, function(c) log2(c+1)); 
 
@@ -50,7 +51,7 @@ NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.s
   # Reverse log-transformation
   if (log.transform) {
     adj <- exp(adj*log(2));
-    adj[mns==0] <- 0;
+    adj[ori==0] <- 0;
   }
   
   colnames(adj) <- names(cov); 
