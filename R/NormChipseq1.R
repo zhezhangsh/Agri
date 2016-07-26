@@ -10,13 +10,10 @@
 # Step 1. subtract background from the sequencing depth
 # Step 2. normalize data between samples
 
-NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.start=c(), bg.end=c(), 
-                         trim.low=0.05, trim.high=0.95, exclude=c()) {
+NormChipseq1 <- function(cov, log.transform=TRUE, bg=0, bg.start=c(), bg.end=c(), 
+                         trim.low=0.05, trim.high=0.95, max.seed=25000, exclude=c()) {
   require(DEGandMore);
   
-  nm  <- names(cov); 
-  #ori <- sapply(cov, function(c) rowMeans(c[, col.start:col.end, drop=FALSE], na.rm=TRUE)); 
-    
   # Transform data to log-scale
   if (log.transform) cov <- lapply(cov, function(c) log2(c+1)); 
 
@@ -42,21 +39,20 @@ NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.s
       c - mean(bg); 
     });
   }; 
-  # Average depth within specified sub-regions
-  mns <- sapply(cov, function(c) rowMeans(c[, col.start:col.end, drop=FALSE], na.rm=TRUE)); 
   
-  # Normalize data across samples
-  adj <- NormLoess(mns); 
+  nr <- nrow(cov[[1]]);
+  nc <- ncol(cov[[1]]); 
+  if (max.seed > nr) seed <- 1:nr else seed <- sort(sample(1:nr, max.seed)); 
   
-  # Reverse log-transformation
-  if (log.transform) {
-    adj <- exp(adj*log(2));
-    adj[ori==0] <- 0;
-  }
+  for (i in 1:nc) {
+    d <- sapply(cov, function(c) c[, i]); 
+    d <- NormLoess(d, seed = seed); 
+    for (j in 1:length(cov)) cov[[j]][, i] <- d[, j]; 
+  }; 
   
-  colnames(adj) <- names(cov); 
-  
-  adj;
+  if (log.transform) cov <- lapply(cov, function(c) exp(c*log(2))-1); 
+
+  cov; 
 }
 
 
