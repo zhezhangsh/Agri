@@ -6,7 +6,7 @@
 # - columns are sub-regions of each region. The sub-regions could have fixed or not fixed width, but must be ordered.
 # - each cell in the matrix is the average sequencing depth of that sub-region.
 #
-# The 2-step normalization will be performed as below:
+# The 2-step normalization will be performed:
 # Step 1. subtract background from the sequencing depth
 # Step 2. normalize data between samples
 
@@ -15,7 +15,7 @@ NormChipseq1 <- function(cov, col.start, col.end, log.transform=TRUE, bg=0, bg.s
   require(DEGandMore);
   
   nm  <- names(cov); 
-  ori <- sapply(cov, function(c) rowMeans(c[, col.start:col.end, drop=FALSE], na.rm=TRUE)); 
+  #ori <- sapply(cov, function(c) rowMeans(c[, col.start:col.end, drop=FALSE], na.rm=TRUE)); 
     
   # Transform data to log-scale
   if (log.transform) cov <- lapply(cov, function(c) log2(c+1)); 
