@@ -1,4 +1,4 @@
-# Match PWM to a sequence
+# PWM to DNA sequence match with matching scores.
 ScorePWMMatch <- function(pwm, subject, both.strand=TRUE, min.score=85, min.match=1, local.max=TRUE) {
   # pwm          Same as the first parameter of the matchPWM() function: "For PWM: a rectangular character vector or rectangular DNAStringSet object ("rectangular" means that all elements have the same number of characters) with no IUPAC ambiguity letters, or a Position Frequency Matrix represented as an integer matrix with row names containing at least A, C, G and T (typically the result of a call to consensusMatrix)."
   # subject      Same as the first parameter of the matchPWM() function: "Typically a DNAString object. A Views object on a DNAString subject, a MaskedDNAString object, or a single character string, are also supported. IUPAC ambiguity letters in subject are ignored (i.e. assigned weight 0) with a warning."
