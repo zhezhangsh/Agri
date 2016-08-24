@@ -16,7 +16,7 @@ ScorePWMMatch <- function(pwm, subject, both.strand=TRUE, min.score=85, min.matc
     pwm <- pwm[nch==max(nch)]; 
     pwm <- sapply(1:max(nch), function(i) table(substr(pwm, i, i))[c('A', 'C', 'G', 'T')]); 
     pwm[is.na(pwm)] <- 0; 
-  } if (is.matrix(pwm) | is.data.frame(pwm) | is.table(pwm)) { # PWM is provided as integer matrix
+  } else if (is.matrix(pwm) | is.data.frame(pwm) | is.table(pwm)) { # PWM is provided as integer matrix
     pwm <- as.matrix(pwm)[1:4, , drop=FALSE];
     rownames(pwm) <- c('A', 'C', 'G', 'T');
     mx  <- max(pwm, na.rm=TRUE); 
