@@ -11,7 +11,7 @@
 # Step 2. normalize data between samples
 
 NormChipseq1 <- function(cov, log.transform=TRUE, bg=0, bg.start=c(), bg.end=c(), 
-                         trim.low=0.05, trim.high=0.95, max.seed=25000, exclude=c()) {
+                         trim.low=0.05, trim.high=0.95, exclude=c(), max.seed=25000) {
   require(DEGandMore);
   
   # Transform data to log-scale

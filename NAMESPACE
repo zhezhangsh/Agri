@@ -2,3 +2,5 @@
 export("MapCNV2Feature");
 export("MapCNV2Gene");
 export("NormChipseq1");
+export("ScorePWMMatch");
+
