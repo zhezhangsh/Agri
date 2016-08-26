@@ -1,7 +1,12 @@
 
+export("ConvertSeq2PWM");
 export("MapCNV2Feature");
 export("MapCNV2Gene");
 export("NormChipseq1");
+export("PlotPWMMatchPosition");
 export("ScorePWMMatch");
 export("ScorePWMMatchSet");
+export("ScorePWMDist");
+export("ScorePWMPvalue");
+export("ScorePWMWrapper");
 
