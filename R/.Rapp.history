@@ -1,0 +1,9 @@
+load("/Users/zhangz/Downloads/rstudio-export-2/pwm.rdata")
+ls()
+length(pwm)
+pwm[[1]]
+load("/Users/zhangz/Downloads/rstudio-export-2/pwm_anno.rdata")
+ls()
+dim(anno)
+anno[1:2, ]
+load("/Users/zhangz/Downloads/anno_tss.rdata")

@@ -66,7 +66,7 @@ ScorePWMWrapper <- function(pwm.set, subject.set, num.cluster=4, both.strand=TRU
     end   <- end(m)[qry] - stts + 1;
     str   <- mcols(m)$strand[qry];
     score <- mcols(m)$percent[qry];
-    pval  <- ScorePWMPvalue(mcols(m)$score[qry], s);
+    pval  <- ScorePWMPvalue(mcols(m)$score[qry]/100*maxScore(pwm.set[[i]]), s);
     seqs  <- as.character(m)[qry];
     seqs[str==-1] <- as.character(reverseComplement(DNAStringSet(seqs[str==-1])));
     
@@ -244,7 +244,7 @@ ScorePWMDist <- function(pwm, frq=NA, seq=NA, num=4096) {
   }; 
   
   # Random scores
-  s <- sapply(1:num, function(i) sum(apply(pwm, 2, function(x) sample(x, 1, prob=frq))));
+  s <- sapply(1:num, function(i) sum( apply(pwm, 2, function(x) sample(x, 1, prob=frq)) ));
   
   rev(sort(s)); 
 };
