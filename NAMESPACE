@@ -4,6 +4,7 @@ export("MapCNV2Feature");
 export("MapCNV2Gene");
 export("NormChipseq1");
 export("PlotPWMMatchPosition");
+export("RemoveGap");
 export("ScorePWMMatch");
 export("ScorePWMMatchSet");
 export("ScorePWMDist");
